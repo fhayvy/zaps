@@ -1,7 +1,7 @@
-use blinks_backend::config::Config;
-use blinks_backend::service::{Currency, CurrencyService, CacheService};
-use blinks_backend::service::currency_service::UpdateExchangeRateRequest;
-use blinks_backend::db;
+use zaps_backend::config::Config;
+use zaps_backend::service::{Currency, CurrencyService, CacheService};
+use zaps_backend::service::currency_service::UpdateExchangeRateRequest;
+use zaps_backend::db;
 use std::sync::Arc;
 
 #[tokio::test]

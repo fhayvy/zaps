@@ -65,10 +65,10 @@ export default function SettingsScreen() {
   const notificationSublabel = loading
     ? "Loading notification preferences..."
     : permissionStatus === "denied"
-    ? "Notifications are blocked. Open system settings."
-    : enabled
-    ? "Push notifications enabled"
-    : "Push notifications disabled";
+      ? "Notifications are blocked. Open system settings."
+      : enabled
+        ? "Push notifications enabled"
+        : "Push notifications disabled";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,7 +88,7 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.profileCard}>
-          <Text style={styles.profileName}>Ejembiii.BLINKS</Text>
+          <Text style={styles.profileName}>Ejembiii.ZAPS</Text>
           <View style={styles.addressRow}>
             <Text style={styles.addressText}>0x4A7d5cBe16...da79bB2cF9a1B</Text>
             <TouchableOpacity>

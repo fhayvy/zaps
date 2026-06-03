@@ -11,9 +11,10 @@ import {
 
 export function useNotificationPreferences() {
   const [enabled, setEnabled] = useState<boolean>(true);
-  const [permissionStatus, setPermissionStatus] = useState<Notifications.PermissionStatus>(
-    Notifications.PermissionStatus.UNDETERMINED
-  );
+  const [permissionStatus, setPermissionStatus] =
+    useState<Notifications.PermissionStatus>(
+      Notifications.PermissionStatus.UNDETERMINED
+    );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -99,7 +99,7 @@ pub fn start_db_pool_monitoring(
 pub async fn health_check_db(database_url: &str) -> bool {
     match tokio_postgres::Config::from_str(database_url) {
         Ok(cfg) => match cfg.connect(NoTls).await {
-            Ok((mut client, connection)) => {
+            Ok((client, connection)) => {
             // drive connection
             tokio::spawn(async move {
                 let _ = connection.await;

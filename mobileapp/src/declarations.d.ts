@@ -1,4 +1,4 @@
-﻿export {};
+export {};
 
 declare module "*.svg" {
   import React from "react";
@@ -16,5 +16,5 @@ declare global {
     warning: (message: string, options?: any) => void;
   }
 
-  var toast: GlobalToast | undefined;
+  let toast: GlobalToast | undefined;
 }

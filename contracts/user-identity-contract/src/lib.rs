@@ -94,7 +94,7 @@ impl UserIdentityContract {
         env.storage().persistent().extend_ttl(&username_key, 518400, 518400);
 
         // Emit event for user registration
-        env.events().publish(("register", "user"), (&address, &username));
+        env.events().publish(("register", "user"), (address, username));
 
         Ok(())
     }
@@ -148,7 +148,7 @@ impl UserIdentityContract {
         user.reputation_score = score;
         env.storage().persistent().set(&key, &user);
 
-        env.events().publish(("update", "reputation"), (&address, &score));
+        env.events().publish(("update", "reputation"), (address, score));
 
         Ok(())
     }

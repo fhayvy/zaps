@@ -35,7 +35,7 @@ function buildReceiptText(tx: Transaction): string {
   const statusLabel = tx.status.toUpperCase();
 
   const lines: string[] = [
-    "BLINK PAYMENT RECEIPT",
+    "ZAPS PAYMENT RECEIPT",
     line,
     `Date        : ${date}`,
     `Type        : ${typeLabel}`,
@@ -61,7 +61,7 @@ function buildReceiptText(tx: Transaction): string {
         ]
       : []),
     line,
-    "Thank you for using Blink.",
+    "Thank you for using Zaps.",
   ];
 
   return lines.join("\n");
@@ -70,7 +70,7 @@ function buildReceiptText(tx: Transaction): string {
 /** Save receipt as a .txt file and open the share sheet. */
 export async function shareReceipt(tx: Transaction): Promise<void> {
   const text = buildReceiptText(tx);
-  const filename = `blink_receipt_${tx.id}.txt`;
+  const filename = `zaps_receipt_${tx.id}.txt`;
   const path = `${cacheDirectory}${filename}`;
 
   await writeAsStringAsync(path, text, {

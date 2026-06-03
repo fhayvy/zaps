@@ -366,7 +366,7 @@ impl StubFxRouter {
     pub fn swap(
         env: Env,
         recipient: Address,
-        send_asset: Address,
+        _send_asset: Address,
         send_amount: i128,
         dest_asset: Address,
         _min_receive: i128,
@@ -387,6 +387,7 @@ struct FeeSetup {
     payer: Address,
     merchant_id: Bytes,
     fee_dest: Address,
+    usdc: Address,
 }
 
 impl FeeSetup {
@@ -422,7 +423,7 @@ impl FeeSetup {
 
         let client: PaymentRouterClient<'static> = unsafe { core::mem::transmute(client) };
 
-        FeeSetup { client, payer, merchant_id, fee_dest }
+        FeeSetup { client, payer, merchant_id, fee_dest, usdc }
     }
 }
 

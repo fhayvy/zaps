@@ -40,8 +40,8 @@ jobs:
 
       - name: Build backend
         run: |
-          cargo build -p blinks-backend --locked
+          cargo build -p zaps-backend --locked
 
       - name: Run backend tests
         run: |
-          cargo test -p blinks-backend --locked
+          cargo test -p zaps-backend --locked

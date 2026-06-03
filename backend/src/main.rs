@@ -1,4 +1,4 @@
-use blinks_backend::{app::create_app, config::Config, db, telemetry};
+use zaps_backend::{app::create_app, config::Config, db, telemetry};
 use std::net::SocketAddr;
 use tracing::info;
 

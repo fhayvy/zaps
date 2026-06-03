@@ -1,5 +1,5 @@
-use blinks_backend::config::Config;
-use blinks_backend::db;
+use zaps_backend::config::Config;
+use zaps_backend::db;
 use sqlx::PgPool;
 
 // Note: This test requires a running database using the config.

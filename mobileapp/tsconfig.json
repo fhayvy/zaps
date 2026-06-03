@@ -13,9 +13,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "app/**/*",
-    "src/**/*",
-    "src/declarations.d.ts"
-  ]
+  "include": ["app/**/*", "src/**/*", "src/declarations.d.ts"]
 }

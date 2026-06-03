@@ -94,6 +94,12 @@ impl From<anyhow::Error> for ApiError {
     }
 }
 
+impl From<uuid::Error> for ApiError {
+    fn from(_err: uuid::Error) -> Self {
+        ApiError::Validation("Invalid UUID format".to_string())
+    }
+}
+
 impl ApiError {
     pub fn internal_server_error(_message: String) -> Self {
         ApiError::InternalServerError

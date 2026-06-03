@@ -14,7 +14,10 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const PAGE_SIZE = 20;
 
 // 30-second in-memory cache to deduplicate rapid identical requests
-const memCache = new Map<string, { data: TransactionPage; expiresAt: number }>();
+const memCache = new Map<
+  string,
+  { data: TransactionPage; expiresAt: number }
+>();
 
 // ── Mock data (replace with real API base URL from config) ────────────────────
 const MOCK_TRANSACTIONS: Transaction[] = [
@@ -27,7 +30,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     fiatValue: "50.00",
     fiatCurrency: "USD",
     address: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
-    addressLabel: "alice.blink",
+    addressLabel: "alice.zaps",
     timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     stellarTxHash:
       "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
@@ -45,7 +48,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     fiatValue: "120.00",
     fiatCurrency: "USD",
     address: "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGZXG5CPCJDGX4LNZM4IXX",
-    addressLabel: "bob.blink",
+    addressLabel: "bob.zaps",
     timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     stellarTxHash:
       "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
@@ -78,7 +81,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     fiatValue: "200.00",
     fiatCurrency: "USD",
     address: "GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H",
-    addressLabel: "carol.blink",
+    addressLabel: "carol.zaps",
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     stellarTxHash:
       "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
@@ -112,7 +115,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     fiatValue: "75.00",
     fiatCurrency: "USD",
     address: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
-    addressLabel: "alice.blink",
+    addressLabel: "alice.zaps",
     timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     stellarTxHash:
       "f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1",
@@ -130,7 +133,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     fiatValue: "500.00",
     fiatCurrency: "USD",
     address: "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGZXG5CPCJDGX4LNZM4IXX",
-    addressLabel: "bob.blink",
+    addressLabel: "bob.zaps",
     timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     stellarTxHash:
       "a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3",
@@ -202,11 +205,11 @@ export async function fetchTransactions(
   let all = MOCK_TRANSACTIONS;
 
   // Try to merge with cache (real app would just use API response)
-  const cached = await readCache();
-  if (cached) {
-    const cachedIds = new Set(cached.map((t) => t.id));
+  const cachedData = await readCache();
+  if (cachedData) {
+    const cachedIds = new Set(cachedData.map((t) => t.id));
     const fresh = all.filter((t) => !cachedIds.has(t.id));
-    all = [...fresh, ...cached];
+    all = [...fresh, ...cachedData];
   }
 
   // Apply filters
@@ -256,7 +259,11 @@ export async function fetchTransactions(
   // Update cache with latest full list
   await writeCache(all);
 
-  const result: TransactionPage = { items: page, nextCursor, total: filtered.length };
+  const result: TransactionPage = {
+    items: page,
+    nextCursor,
+    total: filtered.length,
+  };
   memCache.set(cacheKey, { data: result, expiresAt: Date.now() + 30_000 });
   return result;
 }

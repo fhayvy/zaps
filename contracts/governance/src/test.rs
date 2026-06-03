@@ -14,7 +14,7 @@ fn sdk_err(e: GovError) -> SdkError {
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn default_config(env: &Env) -> GovernanceConfig {
+fn default_config(_env: &Env) -> GovernanceConfig {
     GovernanceConfig {
         voting_period_ledgers: 100,
         timelock_ledgers: 50,

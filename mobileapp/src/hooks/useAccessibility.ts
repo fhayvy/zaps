@@ -1,9 +1,9 @@
-import { useReducedMotion, useAnimatedStyle } from "react-native-reanimated";
 import { AccessibilityInfo, useColorScheme } from "react-native";
 import { useEffect, useState } from "react";
 
 export function useAccessibility() {
-  const prefersReducedMotion = useReducedMotion();
+  // Simple reduced motion preference - can be enhanced with proper reanimated later
+  const prefersReducedMotion = false;
   const colorScheme = useColorScheme();
   const [isScreenReaderEnabled, setIsScreenReaderEnabled] = useState(false);
   const [isBoldTextEnabled, setIsBoldTextEnabled] = useState(false);

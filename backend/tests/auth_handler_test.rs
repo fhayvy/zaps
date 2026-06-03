@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use tokio::sync::Mutex;
 use tower::util::ServiceExt; // for oneshot
 
-use blinks_backend::{app::create_app, config::Config, db};
+use zaps_backend::{app::create_app, config::Config, db};
 
 lazy_static! {
     static ref MIGRATION_LOCK: Mutex<bool> = Mutex::new(false);
@@ -84,7 +84,7 @@ async fn parse_response(response: axum::response::Response) -> Value {
 
 #[cfg(test)]
 mod unit_tests {
-    use blinks_backend::{
+    use zaps_backend::{
         auth::{self, TokenType},
         role::Role,
     };

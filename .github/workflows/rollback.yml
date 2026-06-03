@@ -38,11 +38,11 @@ jobs:
           if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
             echo "host=${{ secrets.PRODUCTION_HOST }}" >> $GITHUB_OUTPUT
             echo "user=${{ secrets.PRODUCTION_USER }}" >> $GITHUB_OUTPUT
-            echo "container=blinks-backend-production" >> $GITHUB_OUTPUT
+            echo "container=zaps-backend-production" >> $GITHUB_OUTPUT
           else
             echo "host=${{ secrets.STAGING_HOST }}" >> $GITHUB_OUTPUT
             echo "user=${{ secrets.STAGING_USER }}" >> $GITHUB_OUTPUT
-            echo "container=blinks-backend-staging" >> $GITHUB_OUTPUT
+            echo "container=zaps-backend-staging" >> $GITHUB_OUTPUT
           fi
 
       - name: Execute rollback
@@ -53,7 +53,7 @@ jobs:
           key: ${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || secrets.STAGING_SSH_KEY }}
           script: |
             set -e
-            IMAGE="ghcr.io/${{ github.repository_owner }}/blinks-backend:${{ github.event.inputs.image_tag }}"
+            IMAGE="ghcr.io/${{ github.repository_owner }}/zaps-backend:${{ github.event.inputs.image_tag }}"
             CONTAINER="${{ steps.env.outputs.container }}"
 
             echo "Pulling rollback image $IMAGE..."
@@ -68,10 +68,10 @@ jobs:
               --name "$CONTAINER" \
               --restart unless-stopped \
               -p 3000:3000 \
-              -e BLINKS_DATABASE__URL="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL || secrets.STAGING_DATABASE_URL }}" \
-              -e BLINKS_CACHE__REDIS_URL="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_REDIS_URL || secrets.STAGING_REDIS_URL }}" \
-              -e BLINKS_QUEUE__REDIS_URL="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_REDIS_URL || secrets.STAGING_REDIS_URL }}" \
-              -e BLINKS_JWT__SECRET="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_JWT_SECRET || secrets.STAGING_JWT_SECRET }}" \
+              -e ZAPS_DATABASE__URL="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL || secrets.STAGING_DATABASE_URL }}" \
+              -e ZAPS_CACHE__REDIS_URL="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_REDIS_URL || secrets.STAGING_REDIS_URL }}" \
+              -e ZAPS_QUEUE__REDIS_URL="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_REDIS_URL || secrets.STAGING_REDIS_URL }}" \
+              -e ZAPS_JWT__SECRET="${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_JWT_SECRET || secrets.STAGING_JWT_SECRET }}" \
               -e RUN_ENV=${{ github.event.inputs.environment }} \
               -e LOG_FORMAT=json \
               "$IMAGE"

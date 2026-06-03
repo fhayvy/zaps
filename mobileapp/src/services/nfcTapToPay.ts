@@ -1,8 +1,5 @@
 import { Platform } from "react-native";
-import NfcManager, {
-  NfcEvents,
-  NfcTech,
-} from "react-native-nfc-manager";
+import NfcManager, { NfcEvents, NfcTech } from "react-native-nfc-manager";
 
 export interface NfcTapToPayResult {
   raw: string;
@@ -115,5 +112,3 @@ export async function scanNfcTag(
     }
   }
 }
-
-

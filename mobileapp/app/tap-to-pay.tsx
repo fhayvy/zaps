@@ -20,7 +20,6 @@ import { NfcIcon } from "../src/components/NfcIcon";
 import { scanNfcTag } from "../src/services/nfcTapToPay";
 import { parseSep0007Uri } from "../src/utils/sep0007";
 
-
 import XLMLogo from "../assets/XML-logo.svg";
 import USDTLogo from "../assets/USDT-logo.svg";
 import USDCLogo from "../assets/USDC-logo.svg";
@@ -232,10 +231,9 @@ export default function TapToPayScreen() {
   const [step, setStep] = useState<Step>("ready");
   const [amount, setAmount] = useState("");
   const [selectedToken, setSelectedToken] = useState(TOKENS[0].id);
-  const [destination, setDestination] = useState<string | null>(null);
+  const [, setDestination] = useState<string | null>(null);
   const [nfcError, setNfcError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-
 
   useEffect(() => {
     let cancelled = false;
@@ -266,7 +264,6 @@ export default function TapToPayScreen() {
           throw new Error("Invalid SEP-0007 payload (missing destination)");
         }
 
-
         // Auto-advance to transfer/confirm UI
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setStep("transfer");
@@ -286,7 +283,6 @@ export default function TapToPayScreen() {
       cancelled = true;
     };
   }, [step]);
-
 
   const goNext = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -348,10 +344,7 @@ export default function TapToPayScreen() {
                 ? "Looking for nearby terminal"
                 : "Connecting..."}
           </Text>
-          {nfcError && (
-            <Text style={styles.nfcErrorText}>{nfcError}</Text>
-          )}
-
+          {nfcError && <Text style={styles.nfcErrorText}>{nfcError}</Text>}
         </View>
       );
     }
@@ -780,4 +773,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
-

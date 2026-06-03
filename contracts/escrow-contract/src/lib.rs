@@ -127,10 +127,10 @@ impl EscrowContract {
         // Write state BEFORE the external token call so that any reentrant
         // invocation of this contract sees the escrow as already existing.
         let escrow = Escrow {
-            buyer,
-            seller,
+            buyer: buyer.clone(),
+            seller: seller.clone(),
             arbitrator: Option::None,
-            token,
+            token: token.clone(),
             amount,
             state: EscrowState::Locked,
             memo,
@@ -150,7 +150,7 @@ impl EscrowContract {
 
         env.events().publish(
             (symbol_short!("escrow"), symbol_short!("locked")),
-            (escrow_id, buyer, seller, amount)
+            (escrow_id, escrow.buyer.clone(), escrow.seller.clone(), escrow.amount)
         );
 
         reentrancy_guard_exit(&env);
@@ -336,7 +336,7 @@ impl EscrowContract {
         env.storage().persistent().set(&key, &escrow);
 
         env.events().publish(
-            (symbol_short!("escrow"), symbol_short!("evidence_submitted")),
+            (symbol_short!("escrow"), symbol_short!("evid_sub")),
             (escrow_id, caller, evidence)
         );
 
@@ -364,7 +364,7 @@ impl EscrowContract {
         env.storage().persistent().set(&key, &escrow);
 
         env.events().publish(
-            (symbol_short!("escrow"), symbol_short!("arbitrator_set")),
+            (symbol_short!("escrow"), symbol_short!("arb_set")),
             (escrow_id, caller, arbitrator)
         );
 
@@ -401,7 +401,7 @@ impl EscrowContract {
         env.storage().persistent().set(&key, &escrow);
 
         env.events().publish(
-            (symbol_short!("escrow"), symbol_short!("appeal_filed")),
+            (symbol_short!("escrow"), symbol_short!("appeal")),
             (escrow_id, caller, reason)
         );
 
@@ -536,7 +536,7 @@ fn escrow_key(id: &BytesN<32>) -> (Symbol, BytesN<32>) {
 }
 
 fn reputation_key(addr: &Address) -> (Symbol, Address) {
-    (symbol_short!("reputation"), addr.clone())
+    (symbol_short!("rep"), addr.clone())
 }
 
 /// Adjust reputation score for an address by `delta` (can be negative).
@@ -547,7 +547,7 @@ fn adjust_reputation(env: &Env, addr: &Address, delta: i32) -> i32 {
     let next = current.saturating_add(delta);
     env.storage().persistent().set(&key, &next);
     // Emit event for external indexing
-    env.events().publish((symbol_short!("reputation"), symbol_short!("changed")), (addr.clone(), next));
+    env.events().publish((symbol_short!("rep"), symbol_short!("changed")), (addr.clone(), next));
     next
 }
 

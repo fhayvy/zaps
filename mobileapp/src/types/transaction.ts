@@ -10,7 +10,7 @@ export interface Transaction {
   fiatValue: string; // e.g. "12.50"
   fiatCurrency: string; // e.g. "USD"
   address: string; // counterparty full address
-  addressLabel?: string; // optional human-readable label / blink ID
+  addressLabel?: string; // optional human-readable label / zaps ID
   timestamp: string; // ISO 8601
   stellarTxHash?: string;
   memo?: string;

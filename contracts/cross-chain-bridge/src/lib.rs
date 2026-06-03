@@ -40,7 +40,7 @@
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype,
     symbol_short, token::Client as TokenClient,
-    Address, Bytes, Env, Symbol, Vec,
+    Address, Bytes, Env, Symbol,
 };
 
 // ---------------------------------------------------------------------------

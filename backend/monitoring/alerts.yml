@@ -1,5 +1,5 @@
 groups:
-  - name: blinks-backend
+  - name: zaps-backend
     rules:
       - alert: HighHttpErrorRate
         expr: sum(rate(http_errors_total[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 1) > 0.05
@@ -7,7 +7,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: BLINKS backend HTTP error rate is above 5%
+          summary: ZAPS backend HTTP error rate is above 5%
 
       - alert: CriticalHttpErrorRate
         expr: sum(rate(http_errors_total[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 1) > 0.10
@@ -15,7 +15,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: BLINKS backend HTTP error rate is above 10%
+          summary: ZAPS backend HTTP error rate is above 10%
 
       - alert: ApiRateLimitPressure
         expr: sum(rate(rate_limit_events_total{outcome="blocked"}[5m])) > 5
@@ -34,12 +34,12 @@ groups:
           summary: Compliance screening blocked at least one transaction
 
       - alert: BackendDown
-        expr: up{job="blinks-backend"} == 0
+        expr: up{job="zaps-backend"} == 0
         for: 1m
         labels:
           severity: critical
         annotations:
-          summary: BLINKS backend Prometheus scrape target is down
+          summary: ZAPS backend Prometheus scrape target is down
 
       - alert: PaymentSuccessRateLow
         expr: (sum(rate(payment_transactions_total{status="completed"}[10m])) / clamp_min(sum(rate(payment_transactions_total{status="created"}[10m])), 1)) < 0.9
@@ -47,7 +47,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: BLINKS payment success rate is below 90% over 10m
+          summary: ZAPS payment success rate is below 90% over 10m
 
       - alert: MerchantPaymentSuccessRateLow
         expr: (sum(rate(payment_transactions_total{status="completed"}[10m])) by (merchant_id) / clamp_min(sum(rate(payment_transactions_total{status="created"}[10m])) by (merchant_id), 1)) < 0.9
@@ -55,7 +55,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: BLINKS merchant payment success rate is below 90% over 10m
+          summary: ZAPS merchant payment success rate is below 90% over 10m
 
       - alert: NoPaymentsCreated
         expr: increase(payment_transactions_total{status="created"}[15m]) == 0
@@ -65,7 +65,7 @@ groups:
         annotations:
           summary: No payments created in the last 15 minutes
 
-  - name: blinks-contracts
+  - name: zaps-contracts
     rules:
       - alert: SorobanRpcDown
         expr: soroban_rpc_up == 0

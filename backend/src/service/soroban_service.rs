@@ -12,7 +12,7 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
-use ed25519_dalek::{Keypair, PublicKey, SecretKey, Signer};
+use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer as Ed25519Signer};
 use hex as hex_crate;
 
 // Mocking Stellar SDK types for now as we don't have the full crate docs loaded
@@ -170,7 +170,7 @@ pub trait TransactionBuilder {
 }
 
 #[async_trait]
-pub trait Signer {
+pub trait TransactionSigner {
     async fn sign_transaction(&self, tx_xdr: &str) -> Result<String, ApiError>; // Returns signed XDR
 }
 
@@ -186,7 +186,7 @@ impl CustodialSigner {
 }
 
 #[async_trait]
-impl Signer for CustodialSigner {
+impl TransactionSigner for CustodialSigner {
     async fn sign_transaction(&self, tx_xdr: &str) -> Result<String, ApiError> {
         // Basic sponsorship wrapper: if the incoming payload is base64-encoded
         // JSON (our builder returns base64 JSON), decode it and wrap it in a
@@ -207,11 +207,10 @@ impl Signer for CustodialSigner {
         // fallback to HMAC-based sponsorship.
         if let Ok(seed) = hex_crate::decode(&self.secret_key) {
             if seed.len() == 32 {
-                let secret = SecretKey::from_bytes(&seed).map_err(|_| ApiError::InternalServerError)?;
-                let public = PublicKey::from(&secret);
-                let keypair = Keypair { secret, public };
+                let signing_key = SigningKey::from_bytes(&seed.try_into().map_err(|_| ApiError::InternalServerError)?);
+                let verifying_key = signing_key.verifying_key();
 
-                let sig = keypair.sign(&decoded_bytes);
+                let sig = signing_key.sign(&decoded_bytes);
                 let sig_b64 = general_purpose::STANDARD.encode(sig.to_bytes());
 
                 let envelope = json!({
@@ -220,7 +219,7 @@ impl Signer for CustodialSigner {
                     "signature_type": "ed25519",
                     "envelope": general_purpose::STANDARD.encode(&decoded_bytes),
                     "signature": sig_b64,
-                    "pubkey": general_purpose::STANDARD.encode(public.as_bytes()),
+                    "pubkey": general_purpose::STANDARD.encode(verifying_key.as_bytes()),
                 });
 
                 let raw = envelope.to_string();
@@ -349,7 +348,7 @@ impl SorobanService {
 
     fn normalize_error(&self, raw: String) -> ApiError {
         // Try to parse structured RPC JSON first
-        if let Ok(json): Result<serde_json::Value, _> = serde_json::from_str(&raw) {
+        if let Ok(json) = serde_json::from_str::<serde_json::Value>(&raw) {
             // JSON-RPC error object
             if let Some(err) = json.get("error") {
                 // Try to extract a message/code

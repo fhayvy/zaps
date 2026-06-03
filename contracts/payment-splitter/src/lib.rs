@@ -336,7 +336,7 @@ pub struct ConditionalSplit {
 }
 
 #[contracttype]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Copy)]
 pub enum ConditionType {
     MinimumAmount = 1,
     MaximumAmount = 2,
@@ -401,7 +401,7 @@ impl PaymentSplitter {
         let contract_addr = env.current_contract_address();
         let current_ledger = env.ledger().sequence();
 
-        let mut schedules: Vec<SplitSchedule> = env.storage().instance()
+        let schedules: Vec<SplitSchedule> = env.storage().instance()
             .get(&KEY_SCHEDULES)
             .unwrap_or(soroban_sdk::vec![&env]);
 

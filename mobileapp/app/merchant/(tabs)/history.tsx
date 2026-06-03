@@ -59,7 +59,11 @@ const TRANSACTION_DATA = [
   },
 ];
 
-const FilterTab = React.memo(function FilterTab({ label, active, onPress }: any) {
+const FilterTab = React.memo(function FilterTab({
+  label,
+  active,
+  onPress,
+}: any) {
   return (
     <TouchableOpacity
       style={[styles.filterTab, active && styles.filterTabActive]}
@@ -86,7 +90,9 @@ const TransactionItem = React.memo(function TransactionItem({ item }: any) {
           size={16}
           color={item.type === "received" ? "#4CAF50" : "#FF5252"}
           style={{
-            transform: [{ rotate: item.type === "received" ? "180deg" : "0deg" }],
+            transform: [
+              { rotate: item.type === "received" ? "180deg" : "0deg" },
+            ],
           }}
         />
       </View>

@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
 import { COLORS } from "../src/constants/colors";
 import { Button } from "../src/components/Button";
-import BlinkLogo from "../assets/blinkLogo.svg";
+import ZapsLogo from "../assets/zapsLogo.svg";
 
 export default function AccountTypeScreen() {
   const router = useRouter();
@@ -16,8 +16,8 @@ export default function AccountTypeScreen() {
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           {/* Using logo.png as per existing patterns, assuming it's the correct logo asset */}
-          <BlinkLogo width={216} height={103} style={styles.splashLogo} />
-          <Text style={styles.splashText}>BLINK</Text>
+          <ZapsLogo width={216} height={103} style={styles.splashLogo} />
+          <Text style={styles.splashText}>ZAPS</Text>
         </View>
 
         <View style={styles.buttonContainer}>

@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use serde_json::Value;
 
-use blinks_backend::service::soroban_service::CustodialSigner;
+use zaps_backend::service::soroban_service::{CustodialSigner, TransactionSigner};
 
 #[tokio::test]
 async fn test_custodial_signer_ed25519_hex_seed() {

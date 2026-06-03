@@ -394,7 +394,7 @@ impl ComplianceService {
                                 false,
                                 None,
                                 response_time_ms,
-                                Some(500),
+                                500u16,
                                 Some(error),
                             ));
                             all_reasons.push(format!(
@@ -421,7 +421,7 @@ impl ComplianceService {
                 risk_score,
                 &all_reasons,
                 response_time_ms,
-                http_status,
+                Some(http_status as i32),
                 error.as_deref(),
             )
             .await;
@@ -1300,7 +1300,7 @@ impl ComplianceService {
                 0.0
             };
 
-            let prev_high_rate = if prev_total > 0 {
+            let prev_high_rate = if prev_total > 0.0 {
                 prev_high / prev_total
             } else {
                 0.0

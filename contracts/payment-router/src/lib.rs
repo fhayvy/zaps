@@ -73,7 +73,7 @@ pub struct PaymentEvent {
 // ---------------------------------------------------------------------------
 
 #[contractclient(name = "RegistryClient")]
-pub trait BLINKSRegistry {
+pub trait ZAPSRegistry {
     fn get_merchant(env: Env, merchant_id: Bytes) -> MerchantMetadata;
 }
 
@@ -333,7 +333,7 @@ impl PaymentRouter {
     /// Initialise the router. Can only be called once.
     ///
     /// * `admin`    – address that controls admin functions
-    /// * `registry` – BLINKS registry contract address
+    /// * `registry` – ZAPS registry contract address
     /// * `fee_bps`  – protocol fee in basis points (0–1000, i.e. 0–10%)
     /// * `fee_dest` – optional address that receives collected fees
     pub fn initialize(

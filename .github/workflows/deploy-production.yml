@@ -46,8 +46,8 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
-            CURRENT=$(docker inspect blinks-backend-production --format='{{.Config.Image}}' 2>/dev/null || echo "none")
-            echo "$CURRENT" > /tmp/blinks-previous-image.txt
+            CURRENT=$(docker inspect zaps-backend-production --format='{{.Config.Image}}' 2>/dev/null || echo "none")
+            echo "$CURRENT" > /tmp/zaps-previous-image.txt
             echo "Previous image: $CURRENT"
 
       - name: Run database migrations
@@ -61,10 +61,10 @@ jobs:
             echo "Running migrations on production..."
             docker run --rm \
               --network host \
-              -e BLINKS_DATABASE__URL="${{ secrets.PRODUCTION_DATABASE_URL }}" \
+              -e ZAPS_DATABASE__URL="${{ secrets.PRODUCTION_DATABASE_URL }}" \
               -e RUN_ENV=production \
-              ghcr.io/${{ github.repository_owner }}/blinks-backend:${{ github.event.inputs.image_tag }} \
-              /app/blinks-backend migrate
+              ghcr.io/${{ github.repository_owner }}/zaps-backend:${{ github.event.inputs.image_tag }} \
+              /app/zaps-backend migrate
             echo "Migrations complete"
 
       - name: Deploy to production
@@ -75,30 +75,30 @@ jobs:
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
             set -e
-            IMAGE="ghcr.io/${{ github.repository_owner }}/blinks-backend:${{ github.event.inputs.image_tag }}"
+            IMAGE="ghcr.io/${{ github.repository_owner }}/zaps-backend:${{ github.event.inputs.image_tag }}"
 
             echo "Pulling $IMAGE..."
             docker pull "$IMAGE"
 
             echo "Stopping existing container..."
-            docker stop blinks-backend-production 2>/dev/null || true
-            docker rm blinks-backend-production 2>/dev/null || true
+            docker stop zaps-backend-production 2>/dev/null || true
+            docker rm zaps-backend-production 2>/dev/null || true
 
             echo "Starting new container..."
             docker run -d \
-              --name blinks-backend-production \
+              --name zaps-backend-production \
               --restart unless-stopped \
               -p 3000:3000 \
-              -e BLINKS_DATABASE__URL="${{ secrets.PRODUCTION_DATABASE_URL }}" \
-              -e BLINKS_CACHE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
-              -e BLINKS_QUEUE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
-              -e BLINKS_JWT__SECRET="${{ secrets.PRODUCTION_JWT_SECRET }}" \
-              -e BLINKS_ANCHOR__WEBHOOK_SECRET="${{ secrets.PRODUCTION_ANCHOR_WEBHOOK_SECRET }}" \
-              -e BLINKS_COMPLIANCE__SANCTIONS_API_KEY="${{ secrets.PRODUCTION_SANCTIONS_API_KEY }}" \
-              -e BLINKS_OBSERVABILITY__SENTRY_DSN="${{ secrets.PRODUCTION_SENTRY_DSN }}" \
+              -e ZAPS_DATABASE__URL="${{ secrets.PRODUCTION_DATABASE_URL }}" \
+              -e ZAPS_CACHE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
+              -e ZAPS_QUEUE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
+              -e ZAPS_JWT__SECRET="${{ secrets.PRODUCTION_JWT_SECRET }}" \
+              -e ZAPS_ANCHOR__WEBHOOK_SECRET="${{ secrets.PRODUCTION_ANCHOR_WEBHOOK_SECRET }}" \
+              -e ZAPS_COMPLIANCE__SANCTIONS_API_KEY="${{ secrets.PRODUCTION_SANCTIONS_API_KEY }}" \
+              -e ZAPS_OBSERVABILITY__SENTRY_DSN="${{ secrets.PRODUCTION_SENTRY_DSN }}" \
               -e RUN_ENV=production \
               -e LOG_FORMAT=json \
-              -e RUST_LOG=blinks_backend=warn,tower_http=warn \
+              -e RUST_LOG=zaps_backend=warn,tower_http=warn \
               "$IMAGE"
 
             echo "Deployed $IMAGE to production"
@@ -127,25 +127,25 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
-            PREVIOUS=$(cat /tmp/blinks-previous-image.txt 2>/dev/null || echo "none")
+            PREVIOUS=$(cat /tmp/zaps-previous-image.txt 2>/dev/null || echo "none")
             if [[ "$PREVIOUS" == "none" ]]; then
               echo "No previous image to roll back to"
               exit 1
             fi
             echo "Rolling back to $PREVIOUS..."
-            docker stop blinks-backend-production 2>/dev/null || true
-            docker rm blinks-backend-production 2>/dev/null || true
+            docker stop zaps-backend-production 2>/dev/null || true
+            docker rm zaps-backend-production 2>/dev/null || true
             docker run -d \
-              --name blinks-backend-production \
+              --name zaps-backend-production \
               --restart unless-stopped \
               -p 3000:3000 \
-              -e BLINKS_DATABASE__URL="${{ secrets.PRODUCTION_DATABASE_URL }}" \
-              -e BLINKS_CACHE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
-              -e BLINKS_QUEUE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
-              -e BLINKS_JWT__SECRET="${{ secrets.PRODUCTION_JWT_SECRET }}" \
-              -e BLINKS_ANCHOR__WEBHOOK_SECRET="${{ secrets.PRODUCTION_ANCHOR_WEBHOOK_SECRET }}" \
-              -e BLINKS_COMPLIANCE__SANCTIONS_API_KEY="${{ secrets.PRODUCTION_SANCTIONS_API_KEY }}" \
-              -e BLINKS_OBSERVABILITY__SENTRY_DSN="${{ secrets.PRODUCTION_SENTRY_DSN }}" \
+              -e ZAPS_DATABASE__URL="${{ secrets.PRODUCTION_DATABASE_URL }}" \
+              -e ZAPS_CACHE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
+              -e ZAPS_QUEUE__REDIS_URL="${{ secrets.PRODUCTION_REDIS_URL }}" \
+              -e ZAPS_JWT__SECRET="${{ secrets.PRODUCTION_JWT_SECRET }}" \
+              -e ZAPS_ANCHOR__WEBHOOK_SECRET="${{ secrets.PRODUCTION_ANCHOR_WEBHOOK_SECRET }}" \
+              -e ZAPS_COMPLIANCE__SANCTIONS_API_KEY="${{ secrets.PRODUCTION_SANCTIONS_API_KEY }}" \
+              -e ZAPS_OBSERVABILITY__SENTRY_DSN="${{ secrets.PRODUCTION_SENTRY_DSN }}" \
               -e RUN_ENV=production \
               -e LOG_FORMAT=json \
               "$PREVIOUS"

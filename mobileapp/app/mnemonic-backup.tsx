@@ -243,7 +243,10 @@ export default function MnemonicBackupScreen() {
             style={{ marginRight: 8 }}
           />
           <Text
-            style={[styles.copyButtonText, copied && styles.copyButtonTextActive]}
+            style={[
+              styles.copyButtonText,
+              copied && styles.copyButtonTextActive,
+            ]}
           >
             {copied
               ? `Copied — clears in ${copyCountdown}s`

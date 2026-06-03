@@ -124,7 +124,7 @@ impl ScheduleService {
             )
             .await?;
 
-        Ok(rows.into_iter().map(row_to_schedule).collect())
+        Ok(rows.into_iter().map(|row| row_to_schedule(&row)).collect())
     }
 
     pub async fn mark_run_result(

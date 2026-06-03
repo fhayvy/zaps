@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use tokio::sync::Mutex;
 use tower::util::ServiceExt;
 
-use blinks_backend::{app::create_app, config::Config, db};
+use zaps_backend::{app::create_app, config::Config, db};
 
 lazy_static! {
     static ref MIGRATION_LOCK: Mutex<bool> = Mutex::new(false);

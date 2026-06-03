@@ -29,7 +29,7 @@ const QRCodeScreen = () => {
     destination: MERCHANT_STELLAR_ADDRESS,
     ...(amount ? { amount: String(amount) } : {}),
     asset_code: "USDC",
-    memo: "Blink merchant payment",
+    memo: "Zaps merchant payment",
   });
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const QRCodeScreen = () => {
     try {
       await Share.share({
         message: sep0007Uri,
-        title: "Blink Payment QR",
+        title: "Zaps Payment QR",
       });
     } catch (error) {
       console.log("Share error:", error);

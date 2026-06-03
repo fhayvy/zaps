@@ -90,11 +90,7 @@ function deriveStellarKey(seed: Buffer, accountIndex: number): Buffer {
   let chainCode: Buffer = Buffer.from(masterResult.subarray(32));
 
   // Path: 44' -> 148' -> accountIndex' (all hardened)
-  const pathComponents = [
-    0x8000002c,
-    0x80000094,
-    0x80000000 + accountIndex,
-  ];
+  const pathComponents = [0x8000002c, 0x80000094, 0x80000000 + accountIndex];
 
   for (const index of pathComponents) {
     const data = Buffer.alloc(37);
@@ -220,7 +216,9 @@ export async function createNewWallet(
 export async function addAccount(): Promise<WalletAccount> {
   const mnemonic = await retrieveMnemonic();
   if (!mnemonic) {
-    throw new Error("No wallet found. Please create or restore a wallet first.");
+    throw new Error(
+      "No wallet found. Please create or restore a wallet first."
+    );
   }
   const currentCount = await getAccountCount();
   const newIndex = currentCount;

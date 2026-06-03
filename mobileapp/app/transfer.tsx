@@ -18,7 +18,7 @@ import { Button } from "../src/components/Button";
 import { Input } from "../src/components/Input";
 import { AccountTypeCard } from "../src/components/AccountTypeCard";
 
-import BlinksIcon from "../assets/icon-4.svg";
+import ZapsIcon from "../assets/icon-4.svg";
 import WalletIcon from "../assets/wallet.svg";
 import XLMLogo from "../assets/XML-logo.svg";
 import USDTLogo from "../assets/USDT-logo.svg";
@@ -86,9 +86,9 @@ const TokenSelectCard = ({
 function TransferScreen() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [transferType, setTransferType] = useState<
-    "BLINKS" | "external" | null
-  >(null);
+  const [transferType, setTransferType] = useState<"ZAPS" | "external" | null>(
+    null
+  );
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedToken, setSelectedToken] = useState(TOKENS[0].id);
@@ -121,11 +121,11 @@ function TransferScreen() {
       <Text style={styles.subtitle}>Choose how you want to send money.</Text>
       <View style={styles.cardsContainer}>
         <AccountTypeCard
-          title="Blinx User"
-          description="Send instantly to any Blinx user via their BLINKS ID"
-          Icon={BlinksIcon}
-          selected={transferType === "BLINKS"}
-          onPress={() => setTransferType("BLINKS")}
+          title="Zaps User"
+          description="Send instantly to any Zaps user via their ZAPS ID"
+          Icon={ZapsIcon}
+          selected={transferType === "ZAPS"}
+          onPress={() => setTransferType("ZAPS")}
         />
         <AccountTypeCard
           title="External Wallet"
@@ -143,7 +143,7 @@ function TransferScreen() {
       <View style={styles.inputsSection}>
         <Input
           placeholder={
-            transferType === "BLINKS" ? "Recipient BLINKS ID" : "Wallet Address"
+            transferType === "ZAPS" ? "Recipient ZAPS ID" : "Wallet Address"
           }
           value={recipient}
           onChangeText={setRecipient}
@@ -203,7 +203,7 @@ function TransferScreen() {
 
         <View style={styles.infoRow}>
           <View style={styles.recipientBadge}>
-            <BlinksIcon width={16} height={16} />
+            <ZapsIcon width={16} height={16} />
           </View>
           <View style={styles.infoCol}>
             <Text style={styles.infoLabel}>Recipient ID</Text>

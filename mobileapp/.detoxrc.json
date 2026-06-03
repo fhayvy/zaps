@@ -11,8 +11,8 @@
   "apps": {
     "ios.debug": {
       "type": "ios.app",
-      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/BLINKS.app",
-      "build": "xcodebuild -workspace ios/BLINKS.xcworkspace -scheme BLINKS -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/ZAPS.app",
+      "build": "xcodebuild -workspace ios/ZAPS.xcworkspace -scheme ZAPS -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
     },
     "android.debug": {
       "type": "android.apk",

@@ -175,11 +175,7 @@ export default function WalletRecoveryScreen() {
   // ── Paste mode ────────────────────────────────────────────────────────────
 
   const handlePasteApply = useCallback(() => {
-    const parsed = pasteText
-      .trim()
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(Boolean);
+    const parsed = pasteText.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
     if (parsed.length !== wordCount) {
       setValidationError(
@@ -246,7 +242,9 @@ export default function WalletRecoveryScreen() {
       router.replace("/account-type");
     } catch (err) {
       setValidationError(
-        err instanceof Error ? err.message : "Recovery failed. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Recovery failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -255,7 +253,9 @@ export default function WalletRecoveryScreen() {
 
   // ── Derived state ─────────────────────────────────────────────────────────
 
-  const filledCount = words.slice(0, wordCount).filter((w) => w.trim() !== "").length;
+  const filledCount = words
+    .slice(0, wordCount)
+    .filter((w) => w.trim() !== "").length;
   const allFilled = filledCount === wordCount;
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -422,7 +422,9 @@ export default function WalletRecoveryScreen() {
               onPress={handleRecover}
               variant="primary"
               disabled={!allFilled && !pasteMode}
-              style={!allFilled && !pasteMode ? styles.disabledButton : undefined}
+              style={
+                !allFilled && !pasteMode ? styles.disabledButton : undefined
+              }
             />
           )}
         </View>

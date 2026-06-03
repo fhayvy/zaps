@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/blinks-backend
+  IMAGE_NAME: ${{ github.repository_owner }}/zaps-backend
 
 jobs:
   build:

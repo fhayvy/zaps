@@ -38,7 +38,9 @@ function LayoutContent() {
 
   React.useEffect(() => {
     startNavigation(pathname);
-    return () => { logNavigation(pathname); };
+    return () => {
+      logNavigation(pathname);
+    };
   }, [pathname]);
 
   React.useEffect(() => {
@@ -61,11 +63,10 @@ function LayoutContent() {
       }
     );
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
+    const responseListener =
+      Notifications.addNotificationResponseReceivedListener((response) => {
         handleNotificationResponse(response, router);
-      }
-    );
+      });
 
     return () => {
       receivedListener.remove();
@@ -113,7 +114,7 @@ function LayoutContent() {
         <Stack.Screen name="faq" options={{ animation: "fade" }} />
         <Stack.Screen name="terms-of-service" options={{ animation: "fade" }} />
         <Stack.Screen name="privacy-policy" options={{ animation: "fade" }} />
-        <Stack.Screen name="about-blinks" options={{ animation: "fade" }} />
+        <Stack.Screen name="about-zaps" options={{ animation: "fade" }} />
         <Stack.Screen name="help-support" options={{ animation: "fade" }} />
       </Stack>
       <ToastManager />

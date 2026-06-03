@@ -1,10 +1,10 @@
-# BLINKS Backend
+# ZAPS Backend
 
-A Rust-based backend for the BLINKS payment system, built on Stellar network with Soroban smart contracts.
+A Rust-based backend for the ZAPS payment system, built on Stellar network with Soroban smart contracts.
 
 ## Architecture
 
-The BLINKS backend provides the following services:
+The ZAPS backend provides the following services:
 
 - **Identity & Wallet Service**: User management and Stellar address resolution
 - **Payment Orchestrator**: QR/NFC payment processing and validation
@@ -38,7 +38,7 @@ The BLINKS backend provides the following services:
 3. **Database setup:**
    ```bash
    # Create PostgreSQL database
-   createdb BLINKS
+   createdb ZAPS
 
    # Set environment variables
    cp env.example .env
@@ -62,7 +62,7 @@ The server will start on `http://localhost:3000`.
 Configuration is loaded from:
 1. `config/default.toml` - Default configuration
 2. `config/{RUN_ENV}.toml` - Environment-specific overrides
-3. Environment variables with `BLINKS_` prefix
+3. Environment variables with `ZAPS_` prefix
 
 ### API Endpoints
 
@@ -90,7 +90,7 @@ Configuration is loaded from:
 
 #### User-to-User Transfers (Protected)
 
-Direct transfers between two BLINKS users are exposed via the **Transfers** API. These endpoints construct an **unsigned Stellar transaction XDR** that the client signs and submits, keeping funds non-custodial.
+Direct transfers between two ZAPS users are exposed via the **Transfers** API. These endpoints construct an **unsigned Stellar transaction XDR** that the client signs and submits, keeping funds non-custodial.
 
 - `POST /transfers/transfers` - Build an unsigned user-to-user transfer XDR
 - `GET /transfers/transfers/{id}` - Get transfer details (skeletal, subject to extension)
@@ -100,7 +100,7 @@ Direct transfers between two BLINKS users are exposed via the **Transfers** API.
 
 **Purpose**
 
-- Create an **unsigned Stellar transaction XDR** representing a transfer from the authenticated user (`from_user_id`) to another BLINKS user (`to_user_id`).
+- Create an **unsigned Stellar transaction XDR** representing a transfer from the authenticated user (`from_user_id`) to another ZAPS user (`to_user_id`).
 - Validate that the recipient exists and has a structurally valid Stellar address.
 - Support an optional memo for business / reconciliation needs.
 
@@ -120,7 +120,7 @@ Direct transfers between two BLINKS users are exposed via the **Transfers** API.
 }
 ```
 
-- **`to_user_id`**: Target BLINKS user identifier. Must correspond to an existing row in the `users` table.
+- **`to_user_id`**: Target ZAPS user identifier. Must correspond to an existing row in the `users` table.
 - **`amount`**: Integer amount in the smallest unit for the given asset (e.g. 1 USDC = 1_000_000 if using 7 decimals). Must be `> 0`.
 - **`asset`**: Logical asset code used by your application (e.g. `USDC`).
 - **`memo`** *(optional)*: Free-text memo attached to the logical transfer for downstream reconciliation and user UX.
@@ -176,7 +176,7 @@ Implementation lives in `backend/src/http/transfers.rs`:
 
 - **`id`**: UUID generated server-side for this transfer request. Currently ephemeral until a full persistence layer for transfers is added.
 - **`from_user_id`**: The authenticated user (JWT subject).
-- **`to_user_id`**: Recipient BLINKS user ID.
+- **`to_user_id`**: Recipient ZAPS user ID.
 - **`amount`**: Requested transfer amount.
 - **`asset`**: Asset code.
 - **`status`**: Currently fixed to `"pending"` to reflect that the transfer has not yet been signed or submitted.
@@ -246,7 +246,7 @@ The backend is designed to be deployed as a single binary:
 
 ```bash
 cargo build --release
-./target/release/BLINKS-backend
+./target/release/ZAPS-backend
 ```
 
 Use environment variables or config files to configure for different environments.
@@ -277,7 +277,7 @@ The backend follows a modular service architecture:
 - Monitoring assets live in `monitoring/` and include Prometheus scrape config, alert rules, and a Grafana dashboard.
 - Compliance screening records transaction risk assessments, sanctions decisions, velocity-limit checks, and high-risk flags before payments, transfers, and withdrawals proceed.
 - Redis is used for distributed rate limiting and cache-aside helpers; the app falls back gracefully when Redis is unavailable.
-- Database pool size is configurable with `BLINKS_DATABASE__MAX_POOL_SIZE`, and query/index optimization lives in the migration set.
+- Database pool size is configurable with `ZAPS_DATABASE__MAX_POOL_SIZE`, and query/index optimization lives in the migration set.
 
 ### Database Schema
 
@@ -301,4 +301,4 @@ The PostgreSQL database contains the following main tables:
 
 ## License
 
-This project is part of the BLINKS ecosystem.
+This project is part of the ZAPS ecosystem.

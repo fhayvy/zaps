@@ -391,6 +391,14 @@ impl GovernanceContract {
         );
     }
 
+    /// Get the current delegation target for a delegator.
+    /// Returns None if the delegator has not delegated their power.
+    pub fn get_delegate(env: Env, delegator: Address) -> Option<Address> {
+        env.storage()
+            .persistent()
+            .get(&Key::DelegateTarget(delegator))
+    }
+
     // -----------------------------------------------------------------------
     // Proposal lifecycle
     // -----------------------------------------------------------------------
@@ -842,7 +850,6 @@ impl GovernanceContract {
     /// Get proposal voting statistics.
     pub fn get_proposal_stats(env: Env, proposal_id: u64) -> (i128, i128, i128, i128) {
         let proposal = load_proposal(&env, proposal_id);
-        let config = load_config(&env);
         let total_votes = proposal.for_votes + proposal.against_votes + proposal.abstain_votes;
         (proposal.for_votes, proposal.against_votes, proposal.abstain_votes, total_votes)
     }

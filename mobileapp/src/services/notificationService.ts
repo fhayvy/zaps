@@ -4,9 +4,9 @@ import * as Linking from "expo-linking";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
-const NOTIFICATION_PREFERENCE_KEY = "blink_notifications_enabled";
-const PUSH_TOKEN_KEY = "blink_push_token";
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://api.blinks.app";
+const NOTIFICATION_PREFERENCE_KEY = "zaps_notifications_enabled";
+const PUSH_TOKEN_KEY = "zaps_push_token";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://api.zaps.app";
 
 export const NOTIFICATION_CATEGORIES = {
   TRANSACTION: "TRANSACTION",
@@ -52,9 +52,14 @@ export async function getStoredNotificationPreference(): Promise<boolean> {
   }
 }
 
-export async function saveNotificationPreference(value: boolean): Promise<void> {
+export async function saveNotificationPreference(
+  value: boolean
+): Promise<void> {
   try {
-    await AsyncStorage.setItem(NOTIFICATION_PREFERENCE_KEY, value ? "true" : "false");
+    await AsyncStorage.setItem(
+      NOTIFICATION_PREFERENCE_KEY,
+      value ? "true" : "false"
+    );
   } catch {
     // ignore write failures
   }
@@ -90,8 +95,7 @@ async function sendDeviceTokenToBackend(token: string): Promise<void> {
       body: JSON.stringify({
         token,
         platform: Platform.OS,
-        appId:
-          Constants.manifest?.slug || Constants.expoConfig?.slug || "BLINKS",
+        appId: Constants.manifest?.slug || Constants.expoConfig?.slug || "ZAPS",
       }),
     });
   } catch {
@@ -102,7 +106,10 @@ async function sendDeviceTokenToBackend(token: string): Promise<void> {
 export async function requestNotificationPermissionsAsync(): Promise<Notifications.PermissionStatus> {
   try {
     const current = await Notifications.getPermissionsAsync();
-    if (current.granted || current.ios?.status === Notifications.PermissionStatus.PROVISIONAL) {
+    if (
+      current.granted ||
+      current.ios?.status === Notifications.PermissionStatus.PROVISIONAL
+    ) {
       return current.status;
     }
 
@@ -126,7 +133,9 @@ export async function requestNotificationPermissionsAsync(): Promise<Notificatio
   }
 }
 
-export async function registerForPushNotificationsAsync(): Promise<string | null> {
+export async function registerForPushNotificationsAsync(): Promise<
+  string | null
+> {
   if (!Constants.isDevice) {
     console.warn("Push notifications require a physical device.");
     return null;
@@ -139,7 +148,8 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
 
   try {
     const tokenResponse = await Notifications.getExpoPushTokenAsync();
-    const token = typeof tokenResponse === "string" ? tokenResponse : tokenResponse.data;
+    const token =
+      typeof tokenResponse === "string" ? tokenResponse : tokenResponse.data;
 
     if (!token) {
       return null;

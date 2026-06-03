@@ -1,7 +1,7 @@
 use std::time::Duration;
-use blinks_backend::config::Config;
-use blinks_backend::models::{RateLimitConfig, RateLimitScope};
-use blinks_backend::service::RateLimitService;
+use zaps_backend::config::Config;
+use zaps_backend::models::{RateLimitConfig, RateLimitScope};
+use zaps_backend::service::RateLimitService;
 
 #[tokio::test]
 async fn test_rate_limit_enforcement() {

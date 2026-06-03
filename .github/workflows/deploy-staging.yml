@@ -51,10 +51,10 @@ jobs:
             echo "Running migrations on staging..."
             docker run --rm \
               --network host \
-              -e BLINKS_DATABASE__URL="${{ secrets.STAGING_DATABASE_URL }}" \
+              -e ZAPS_DATABASE__URL="${{ secrets.STAGING_DATABASE_URL }}" \
               -e RUN_ENV=staging \
-              ghcr.io/${{ github.repository_owner }}/blinks-backend:${{ steps.tag.outputs.tag }} \
-              /app/blinks-backend migrate
+              ghcr.io/${{ github.repository_owner }}/zaps-backend:${{ steps.tag.outputs.tag }} \
+              /app/zaps-backend migrate
             echo "Migrations complete"
 
       - name: Deploy to staging server
@@ -65,29 +65,29 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             set -e
-            IMAGE="ghcr.io/${{ github.repository_owner }}/blinks-backend:${{ steps.tag.outputs.tag }}"
+            IMAGE="ghcr.io/${{ github.repository_owner }}/zaps-backend:${{ steps.tag.outputs.tag }}"
 
             echo "Pulling $IMAGE..."
             docker pull "$IMAGE"
 
             echo "Stopping existing container..."
-            docker stop blinks-backend-staging 2>/dev/null || true
-            docker rm blinks-backend-staging 2>/dev/null || true
+            docker stop zaps-backend-staging 2>/dev/null || true
+            docker rm zaps-backend-staging 2>/dev/null || true
 
             echo "Starting new container..."
             docker run -d \
-              --name blinks-backend-staging \
+              --name zaps-backend-staging \
               --restart unless-stopped \
               -p 3000:3000 \
-              -e BLINKS_DATABASE__URL="${{ secrets.STAGING_DATABASE_URL }}" \
-              -e BLINKS_CACHE__REDIS_URL="${{ secrets.STAGING_REDIS_URL }}" \
-              -e BLINKS_QUEUE__REDIS_URL="${{ secrets.STAGING_REDIS_URL }}" \
-              -e BLINKS_JWT__SECRET="${{ secrets.STAGING_JWT_SECRET }}" \
-              -e BLINKS_ANCHOR__WEBHOOK_SECRET="${{ secrets.STAGING_ANCHOR_WEBHOOK_SECRET }}" \
-              -e BLINKS_OBSERVABILITY__SENTRY_DSN="${{ secrets.STAGING_SENTRY_DSN }}" \
+              -e ZAPS_DATABASE__URL="${{ secrets.STAGING_DATABASE_URL }}" \
+              -e ZAPS_CACHE__REDIS_URL="${{ secrets.STAGING_REDIS_URL }}" \
+              -e ZAPS_QUEUE__REDIS_URL="${{ secrets.STAGING_REDIS_URL }}" \
+              -e ZAPS_JWT__SECRET="${{ secrets.STAGING_JWT_SECRET }}" \
+              -e ZAPS_ANCHOR__WEBHOOK_SECRET="${{ secrets.STAGING_ANCHOR_WEBHOOK_SECRET }}" \
+              -e ZAPS_OBSERVABILITY__SENTRY_DSN="${{ secrets.STAGING_SENTRY_DSN }}" \
               -e RUN_ENV=staging \
               -e LOG_FORMAT=json \
-              -e RUST_LOG=blinks_backend=info,tower_http=info \
+              -e RUST_LOG=zaps_backend=info,tower_http=info \
               "$IMAGE"
 
             echo "Deployed $IMAGE to staging"

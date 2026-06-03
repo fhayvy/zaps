@@ -168,7 +168,7 @@ impl PaymentService {
 
         // In production, this would generate a proper SEP-7 URI
         let qr_data = format!(
-            "BLINKS://pay?merchant={}&amount={}&asset={}&expiry={}&memo={}",
+            "ZAPS://pay?merchant={}&amount={}&asset={}&expiry={}&memo={}",
             payload.merchant_id,
             payload.amount,
             payload.asset,
