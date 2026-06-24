@@ -1,6 +1,6 @@
 use axum::{
     async_trait,
-    extract::{FromRequestParts, State},
+    extract::{FromRef, FromRequestParts, State},
     http::{request::Parts, StatusCode},
     response::IntoResponse,
     Json,
@@ -72,10 +72,14 @@ where
 
         // Map token to mock user info
         let (username, address) = if token == "mock-jwt-token-string" {
-            ("ebube.zaps".to_string(), "GABC1234EXAMPLESTELLARADDRESSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".to_string())
+            (
+                "ebube.zaps".to_string(),
+                "GABC1234EXAMPLESTELLARADDRESSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".to_string(),
+            )
         } else {
             // Attempt to decode as JWT
-            let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "zaps-jwt-secret-placeholder-very-long-key".into());
+            let secret = std::env::var("JWT_SECRET")
+                .unwrap_or_else(|_| "zaps-jwt-secret-placeholder-very-long-key".into());
             let validation = jsonwebtoken::Validation::default();
             match jsonwebtoken::decode::<crate::api::auth::Claims>(
                 token,
@@ -99,7 +103,7 @@ where
         };
 
         // Find or create the user in the database to get a valid UUID
-        let row = sqlx::query(
+        let (id, address, username) = sqlx::query_as::<_, (Uuid, String, String)>(
             r#"
             INSERT INTO users (address, username, display_name)
             VALUES ($1, $2, $3)
@@ -121,9 +125,9 @@ where
         })?;
 
         Ok(AuthUser {
-            id: row.get("id"),
-            address: row.get("address"),
-            username: row.get("username"),
+            id,
+            address,
+            username,
         })
     }
 }

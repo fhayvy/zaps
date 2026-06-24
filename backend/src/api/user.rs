@@ -1,7 +1,7 @@
+use crate::api::feed::AuthUser;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
-use crate::api::feed::AuthUser;
 
 #[derive(Deserialize)]
 pub struct UpdateProfileRequest {
@@ -38,10 +38,7 @@ pub struct FriendRequest {
     pub friend_address: String,
 }
 
-pub async fn get_profile(
-    State(pool): State<sqlx::PgPool>,
-    auth: AuthUser,
-) -> impl IntoResponse {
+pub async fn get_profile(State(pool): State<sqlx::PgPool>, auth: AuthUser) -> impl IntoResponse {
     let row = match sqlx::query(
         r#"
         SELECT address, username, display_name, bio, avatar_url
@@ -163,10 +160,43 @@ pub async fn search_users(
     Json(users).into_response()
 }
 
-pub async fn list_friends() -> impl IntoResponse {
-    // TODO: Implement BE-012 (Friend list retrieval endpoint)
-    let mock_friends: Vec<UserSearchItem> = vec![];
-    Json(mock_friends)
+pub async fn list_friends(State(pool): State<sqlx::PgPool>, auth: AuthUser) -> impl IntoResponse {
+    let rows = match sqlx::query(
+        r#"
+        SELECT u.username, u.address, u.avatar_url
+        FROM users u
+        JOIN friendships f ON (
+            (f.user_id = $1 AND f.friend_id = u.id) OR
+            (f.friend_id = $1 AND f.user_id = u.id)
+        )
+        WHERE f.status = 'ACCEPTED' AND u.id != $1
+        "#,
+    )
+    .bind(auth.id)
+    .fetch_all(&pool)
+    .await
+    {
+        Ok(rows) => rows,
+        Err(e) => {
+            tracing::error!("Failed to fetch friends: {:?}", e);
+            return (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": "Internal database error" })),
+            )
+                .into_response();
+        }
+    };
+
+    let friends: Vec<UserSearchItem> = rows
+        .into_iter()
+        .map(|row| UserSearchItem {
+            username: row.get("username"),
+            address: row.get("address"),
+            avatar_url: row.get("avatar_url"),
+        })
+        .collect();
+
+    Json(friends).into_response()
 }
 
 pub async fn send_friend_request(Json(_payload): Json<FriendRequest>) -> impl IntoResponse {
