@@ -42,8 +42,14 @@ impl SocialPaymentContract {
 
     /// Add a comment to a transaction (on-chain event trigger)
     pub fn comment_payment(env: Env, sender: Address, tx_id: Symbol, comment: String) {
-        // TODO: Implement SC-008 (Comment event emission)
         sender.require_auth();
-        panic!("unimplemented: comment_payment");
+        let len = comment.len();
+        if len > 120 {
+            panic!("comment exceeds maximum length of 120 characters");
+        }
+        env.events().publish(
+            (Symbol::new(&env, "PaymentCommented"),),
+            (tx_id, comment.clone()),
+        );
     }
 }
