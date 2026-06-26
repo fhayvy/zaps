@@ -466,6 +466,16 @@ export default function HomeScreen() {
           activeOpacity={0.9}
           onPress={openEarningsModal}
         >
+          <View>
+            <Text style={styles.earningLabel}>Earning Balance</Text>
+            <Text style={styles.earningAmount}>{totalYieldEarned}</Text>
+            <View style={styles.earningStatusRow}>
+              <View style={styles.earningStatusDot} />
+              <Text style={styles.earningStatusText}>
+                Your money is working
+              </Text>
+            </View>
+          </View>
           {yieldStatus === "loading" ? (
             <View style={styles.earningContent}>
               <SkeletonBlock style={styles.earningLabelSkeleton} />
@@ -495,7 +505,7 @@ export default function HomeScreen() {
             </View>
           )}
           <View style={styles.earningIconWrap}>
-            <Ionicons name="trending-up" size={20} color={COLORS.primary} />
+            <Ionicons name="trending-up" size={20} color="#A7F3C0" />
           </View>
         </TouchableOpacity>
 
@@ -916,16 +926,19 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   earningBalanceCard: {
-    backgroundColor: "#EEF7EA",
+    backgroundColor: "#0F3D2E",
     borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "#D7EACF",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
     marginBottom: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    shadowColor: "#0F3D2E",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 3,
   },
   earningContent: {
     flex: 1,
@@ -934,19 +947,30 @@ const styles = StyleSheet.create({
   earningLabel: {
     fontSize: 13,
     fontFamily: "Outfit_500Medium",
-    color: "#456047",
+    color: "#9FD9B5",
     marginBottom: 6,
   },
   earningAmount: {
     fontSize: 24,
     fontFamily: "Outfit_700Bold",
-    color: COLORS.primary,
-    marginBottom: 2,
+    color: COLORS.white,
+    marginBottom: 8,
   },
-  earningHint: {
+  earningStatusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  earningStatusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#34D399",
+    marginRight: 7,
+  },
+  earningStatusText: {
     fontSize: 12,
-    fontFamily: "Outfit_400Regular",
-    color: "#56785A",
+    fontFamily: "Outfit_500Medium",
+    color: "#BFE9CF",
   },
   earningErrorText: {
     fontSize: 14,
@@ -975,7 +999,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#DDEFD5",
+    backgroundColor: "rgba(167, 243, 192, 0.14)",
     justifyContent: "center",
     alignItems: "center",
   },
