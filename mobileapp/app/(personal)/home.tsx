@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
   Animated,
+  Switch,
   ViewStyle,
   StyleProp,
 } from "react-native";
@@ -94,6 +95,7 @@ export default function HomeScreen() {
   const [yieldError, setYieldError] = useState("");
   const [yieldRetryCount, setYieldRetryCount] = useState(0);
   const [earningsModalVisible, setEarningsModalVisible] = useState(false);
+  const [autoYieldEnabled, setAutoYieldEnabled] = useState(true);
   const earningsSheetTranslateY = useRef(new Animated.Value(48)).current;
   const earningsBackdropOpacity = useRef(new Animated.Value(0)).current;
   const shimmerAnim = useRef(new Animated.Value(-1)).current;
@@ -345,6 +347,14 @@ export default function HomeScreen() {
         setEarningsModalVisible(false);
       }
     });
+  };
+
+  const handleAutoYieldToggle = (value: boolean) => {
+    // Light haptic bump on yield preference change (and resulting deposit)
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+      () => undefined
+    );
+    setAutoYieldEnabled(value);
   };
 
   const handleYieldRetry = () => {
@@ -695,6 +705,26 @@ export default function HomeScreen() {
                   </Text>
                 </View>
 
+            <View style={styles.autoYieldRow}>
+              <View style={styles.autoYieldTextWrap}>
+                <Text style={styles.autoYieldTitle}>Auto-yield deposits</Text>
+                <Text style={styles.autoYieldSubtitle}>
+                  Automatically put idle balance to work
+                </Text>
+              </View>
+              <Switch
+                value={autoYieldEnabled}
+                onValueChange={handleAutoYieldToggle}
+                trackColor={{ false: "#E2E8F0", true: "#34D399" }}
+                thumbColor={COLORS.white}
+              />
+            </View>
+
+            <Text style={styles.earningsInfoCopy}>
+              Your earnings are generated from your wallet balance and may vary
+              as rates change. APY is an annualized estimate and total yield is
+              updated automatically over time.
+            </Text>
                 <Text style={styles.earningsInfoCopy}>
                   {yieldData?.explanation}
                 </Text>
@@ -1003,6 +1033,32 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: "Outfit_700Bold",
     color: "#111827",
+  },
+  autoYieldRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: "#FAFAFA",
+  },
+  autoYieldTextWrap: {
+    flex: 1,
+    marginRight: 12,
+  },
+  autoYieldTitle: {
+    fontSize: 14,
+    fontFamily: "Outfit_600SemiBold",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  autoYieldSubtitle: {
+    fontSize: 12,
+    fontFamily: "Outfit_400Regular",
+    color: "#6B7280",
   },
   earningsInfoCopy: {
     fontSize: 13,
