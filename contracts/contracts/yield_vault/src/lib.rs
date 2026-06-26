@@ -371,4 +371,84 @@ impl YieldVaultContract {
     pub fn yield_index(env: Env) -> i128 {
         Self::current_index(&env)
     }
+
+    // ─── SC-024: Emit YieldAccrued event on compound ──────────────────────────
+
+    /// Accrue yield, persist the updated index, and broadcast a `YieldAccrued`
+    /// event.  Callers (e.g. a keeper) invoke this periodically to compound
+    /// interest for all depositors.
+    ///
+    /// Event payload: `(elapsed_ledgers: u32, added_yield: i128, new_index: i128)`
+    pub fn accrue_yield(env: Env, caller: Address) {
+        caller.require_auth();
+        Self::require_owner(&env, &caller);
+
+        let old_index: i128 = env.storage().instance().get(&IDX_KEY).unwrap_or(PRECISION);
+        let last_ledger: u32 = env
+            .storage()
+            .instance()
+            .get(&IDX_LED_KEY)
+            .unwrap_or_else(|| env.ledger().sequence());
+
+        let now = env.ledger().sequence();
+        let elapsed = now.saturating_sub(last_ledger);
+
+        // Persist the new index using the existing checkpoint helper.
+        Self::checkpoint_index(&env);
+
+        let new_index: i128 = env.storage().instance().get(&IDX_KEY).unwrap_or(PRECISION);
+        let added_yield = new_index.saturating_sub(old_index);
+
+        // Claim any rewards that have accrued in the mock protocol.
+        let rewards = sandbox_protocol::claim_rewards(&env);
+        if rewards > 0 {
+            // Re-supply rewards back into the protocol to compound.
+            sandbox_protocol::supply(&env, rewards);
+            let tot_assets: i128 = env.storage().instance().get(&ASSETS_KEY).unwrap_or(0);
+            env.storage()
+                .instance()
+                .set(&ASSETS_KEY, &(tot_assets + rewards));
+        }
+
+        env.events().publish(
+            (Symbol::new(&env, "YieldAccrued"),),
+            (elapsed, added_yield, new_index),
+        );
+    }
+
+    // ─── SC-025: Administrative token salvage ────────────────────────────────
+
+    /// Sweep any unsupported token accidentally sent to the vault back to the
+    /// `treasury` address.
+    ///
+    /// Panics if `rescue_token` equals the vault's primary deposit token (to
+    /// prevent draining depositor funds).
+    pub fn salvage_token(env: Env, caller: Address, rescue_token: Address, treasury: Address) {
+        caller.require_auth();
+        Self::require_owner(&env, &caller);
+
+        let deposit_token: Address = env
+            .storage()
+            .instance()
+            .get(&TOKEN_KEY)
+            .expect("not initialized");
+
+        assert!(
+            rescue_token != deposit_token,
+            "cannot salvage the primary deposit token"
+        );
+
+        let vault_addr = env.current_contract_address();
+        let token_client = token::Client::new(&env, &rescue_token);
+        let balance = token_client.balance(&vault_addr);
+
+        assert!(balance > 0, "no balance to salvage");
+
+        token_client.transfer(&vault_addr, &treasury, &balance);
+
+        env.events().publish(
+            (Symbol::new(&env, "TokenSalvaged"),),
+            (rescue_token, treasury, balance),
+        );
+    }
 }
