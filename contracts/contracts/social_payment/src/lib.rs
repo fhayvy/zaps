@@ -6,6 +6,7 @@ use soroban_sdk::{
 
 const ADMIN_KEY: Symbol = symbol_short!("admin");
 const TREAS_KEY: Symbol = symbol_short!("treasury");
+const FEE_COEFF_KEY: Symbol = symbol_short!("fee_coef");
 
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -48,6 +49,19 @@ impl SocialPaymentContract {
         env.storage().instance().set(&TREAS_KEY, &new_treasury);
     }
 
+    pub fn set_fee_coefficient(env: Env, fee_coef: u32) {
+        let admin: Address = env.storage().instance().get(&ADMIN_KEY).expect("not initialized");
+        admin.require_auth();
+        if fee_coef > 10000 {
+            panic!("fee coefficient cannot exceed 10000 basis points");
+        }
+        env.storage().instance().set(&FEE_COEFF_KEY, &fee_coef);
+    }
+
+    pub fn fee_coefficient(env: Env) -> u32 {
+        env.storage().instance().get(&FEE_COEFF_KEY).unwrap_or(10)
+    }
+
     /// SC-005: Execute a P2P social payment using the Naira token (or any SEP-41 token).
     /// For Public payments a 0.1% platform fee is routed to the treasury.
     /// For Friends/Private payments the full amount goes to the receiver.
@@ -66,12 +80,9 @@ impl SocialPaymentContract {
         let token_client = soroban_sdk::token::Client::new(&env, &token);
 
         if visibility == Visibility::Public {
-            let treasury: Address = env
-                .storage()
-                .instance()
-                .get(&TREAS_KEY)
-                .expect("treasury not initialized");
-            let fee = amount / 1000; // 0.1%
+            let treasury: Address = env.storage().instance().get(&TREAS_KEY).expect("treasury not initialized");
+            let fee_coef = env.storage().instance().get(&FEE_COEFF_KEY).unwrap_or(10u32);
+            let fee = amount * (fee_coef as i128) / 10000;
             let receiver_amount = amount - fee;
             token_client.transfer(&sender, &receiver, &receiver_amount);
             if fee > 0 {
@@ -284,5 +295,27 @@ mod tests {
         let (_env, client, admin, treasury, _sender, _receiver) = setup();
         let res = client.try_initialize(&admin, &treasury);
         assert!(res.is_err());
+    }
+
+    // ── Adjust fee coefficient: updates value, affects payout calculation ─────
+    #[test]
+    fn test_adjust_fee_coefficient() {
+        let (env, client, admin, treasury, sender, receiver) = setup();
+        let token = mint_token(&env, &admin, &sender, 10_000);
+        let token_client = soroban_sdk::token::Client::new(&env, &token);
+
+        // Verify default is 10 (0.1%)
+        assert_eq!(client.fee_coefficient(), 10);
+
+        // Try setting coefficient to 50 (0.5%)
+        client.set_fee_coefficient(&50);
+        assert_eq!(client.fee_coefficient(), 50);
+
+        client.pay(&sender, &receiver, &token, &1000, &String::from_str(&env, "Public payment"), &Visibility::Public);
+
+        // 1000 * 50 / 10000 = 5 fee, 995 receiver
+        assert_eq!(token_client.balance(&receiver), 995);
+        assert_eq!(token_client.balance(&treasury), 5);
+        assert_eq!(token_client.balance(&sender), 9_000);
     }
 }
