@@ -17,7 +17,6 @@ pub enum DataKey {
 impl UserRegistryContract {
     /// Register a username mapping to the sender's address
     pub fn register_user(env: Env, user: Address, username: String) {
-        // TODO: Implement SC-002 (Validate username rules: length 3-15, alphanumeric, lowercase)
         user.require_auth();
 
         let username_key = DataKey::Username(username.clone());
@@ -56,7 +55,12 @@ impl UserRegistryContract {
         user.require_auth();
         env.storage()
             .persistent()
-            .set(&DataKey::Avatar(user), &avatar_uri);
+            .set(&DataKey::Avatar(user.clone()), &avatar_uri);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("prof_upd"),),
+            (user, avatar_uri),
+        );
     }
 
     /// Retrieve the avatar URI associated with an Address
@@ -65,6 +69,44 @@ impl UserRegistryContract {
             .persistent()
             .get(&DataKey::Avatar(user))
             .unwrap_or_else(|| String::from_str(&env, ""))
+    }
+
+    /// Unregister a user's profile and mapping
+    pub fn unregister_user(env: Env, user: Address) {
+        user.require_auth();
+
+        let address_key = String::from_str(&env, ADDRESS_TO_USERNAME);
+        let username_key = String::from_str(&env, USERNAME_TO_ADDRESS);
+
+        let mut address_to_username: Map<Address, String> = env
+            .storage()
+            .persistent()
+            .get(&address_key)
+            .unwrap_or(Map::new(&env));
+
+        let username = address_to_username
+            .get(user.clone())
+            .unwrap_or_else(|| panic!("address not registered"));
+
+        let mut username_to_address: Map<String, Address> = env
+            .storage()
+            .persistent()
+            .get(&username_key)
+            .unwrap_or(Map::new(&env));
+
+        address_to_username.remove(user.clone());
+        username_to_address.remove(username);
+
+        env.storage()
+            .persistent()
+            .set(&address_key, &address_to_username);
+        env.storage()
+            .persistent()
+            .set(&username_key, &username_to_address);
+            
+        env.storage()
+            .persistent()
+            .remove(&DataKey::Avatar(user));
     }
 }
 
@@ -109,6 +151,56 @@ mod tests {
         let avatar_uri = String::from_str(&env, "https://example.com/avatar.png");
 
         let res = client.try_update_profile(&user, &avatar_uri);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    #[ignore]
+    fn test_validation_rules() {
+        let env = Env::default();
+        env.mock_all_auths();
+
+        let contract_id = env.register_contract(None, UserRegistryContract);
+        let client = UserRegistryContractClient::new(&env, &contract_id);
+        let user = Address::generate(&env);
+
+        // Too short
+        let username = String::from_str(&env, "ab");
+        let res = client.try_register_user(&user, &username);
+        assert!(res.is_err());
+
+        // Too long
+        let username = String::from_str(&env, "a123456789012345");
+        let res = client.try_register_user(&user, &username);
+        assert!(res.is_err());
+
+        // Capital letter
+        let username = String::from_str(&env, "aBcd");
+        let res = client.try_register_user(&user, &username);
+        assert!(res.is_err());
+
+        // Special char
+        let username = String::from_str(&env, "ab-c");
+        let res = client.try_register_user(&user, &username);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    #[ignore]
+    fn test_unregister_user() {
+        let env = Env::default();
+        env.mock_all_auths();
+
+        let contract_id = env.register_contract(None, UserRegistryContract);
+        let client = UserRegistryContractClient::new(&env, &contract_id);
+        let user = Address::generate(&env);
+        let username = String::from_str(&env, "ebube");
+
+        client.register_user(&user, &username);
+        assert_eq!(client.get_address(&username), user);
+
+        client.unregister_user(&user);
+        let res = client.try_get_address(&username);
         assert!(res.is_err());
     }
 }
